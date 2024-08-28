@@ -10,6 +10,14 @@ ADDON = xbmcaddon.Addon()
 # get the full path to your addon, decode it to unicode to handle special (non-ascii) characters in the path
 CWD = ADDON.getAddonInfo('path')
 
+
+def get_user_input():  
+    kb = xbmc.Keyboard('', 'Please enter episode number')
+    kb.doModal() # Onscreen keyboard appears
+    if not kb.isConfirmed():
+        return
+    query = kb.getText() # User input
+    return query
 # add a class to create your xml based window
 class GUI(xbmcgui.WindowXML):
     # [optional] this function is only needed of you are passing optional data to your window
@@ -23,8 +31,9 @@ class GUI(xbmcgui.WindowXML):
         xbmc.executebuiltin('Container.SetViewMode(50)')
         # define a temporary list where we are going to add all the listitems to
         listitems = []
+        episodeNumber = get_user_input()
         try:
-            response = requests.get("https://animeflix-next.vercel.app/api/getVideoServers?title=spy-x-family&episode_number=1")
+            response = requests.get(f"https://animeflix-next.vercel.app/api/getVideoServers?title=oshi-no-ko&episode_number={episodeNumber}")
             response.raise_for_status()  # Raise an exception for HTTP errors
             items = response.json()
         except requests.RequestException as e:
@@ -32,13 +41,13 @@ class GUI(xbmcgui.WindowXML):
             items = [{"server": "xd", "url": "https://moodle1.playmudos.com/aTJ1WXJScHdVTzVjMjluYmhCeDY0NzdGRnZxQ0pwY1Zsb01pMEVmTlFDRT0.m3u8"}]
 
         # Add items to the list
-        for item in items:
+        """ for item in items:
             listitem = xbmcgui.ListItem(label=item['server'])
             # Pass URL as an argument when an item is clicked
             listitem.setProperty('url', item['url'])
-            listitems.append(listitem)
+            listitems.append(listitem) """
         
-        #xbmc.Player().play()
+        xbmc.Player().play(items[-1]['url'])
         self.clearList()
         # now we are going to add all the items we have defined to the (built-in) container
         # Add items to the container
